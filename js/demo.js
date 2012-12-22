@@ -17,8 +17,6 @@ Acko.Demo.prototype = {
     var width = window.innerWidth,
         height = window.innerHeight,
         aspect = width/height;
-        width = 1280;
-        height = 720;
 
     if (this.resolution) {
       if (aspect < 16/9) {
@@ -119,10 +117,10 @@ Acko.Demo.prototype = {
     setTimeout(function () {
       that.world.start();
       setTimeout(function () {
-//        that.show('#back');
+        that.show('#back');
       }, (5*60+30)*1000);
       setTimeout(function () {
-//        that.world.stop();
+        that.world.stop();
       }, (5*60+30)*1000);
     }, 300);
   },
