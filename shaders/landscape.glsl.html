@@ -1,0 +1,253 @@
+<!-- landscape mesh -->
+<script type="application/x-glsl" id="land-vertex">
+uniform sampler2D down;
+uniform float heightScale;
+uniform vec3 lightPosition1;
+uniform vec3 lightPosition2;
+uniform float fisheye;
+uniform float aspect;
+
+varying vec2 vUV;
+varying vec3 vLightPosition1;
+varying vec3 vLightPosition2;
+varying float vDensity;
+
+const vec2 zero = vec2(0.0, 0.0);
+const float warpFactor = 9.0;//3.0;
+const float warpSum = 10.0;//(warpFactor + 1.0) * 2.0;
+
+const float fogScale = 12.0;
+const float fogOffset = -0.5;
+
+// Concentrate vertices in the middle for LOD
+vec2 warp(vec2 uv) {
+  float r = min(1.0, dot(uv,uv));
+  vec2 uv1 = uv * (1.0 + r*warpFactor) / warpSum;
+  return uv + (uv1 - uv) * .9;
+//  return (uv + uv*abs(uv)*warpFactor) / warpSum;
+}
+
+void main() {
+  vUV = uv;
+
+  // Fetch height sample
+  float height = texture2D(down, vUV).x;
+
+  // Warp towards center and apply height offset
+  vec4 pos = vec4(warp(position.xy), position.z + height * heightScale, 1.0);
+
+  // Pass on light position
+  vec3 worldPos = (modelMatrix * pos).xyz;
+  vLightPosition1 = normalize(lightPosition1 + worldPos);
+  vLightPosition2 = normalize(lightPosition2 + worldPos);
+
+  // Volumetric fog per vertex
+  vec3 diff = cameraPosition - worldPos;
+  float factor = length(diff) / abs(diff.y);
+  vec2 depths = (-vec2(worldPos.y, cameraPosition.y) + fogOffset) * fogScale;
+  vDensity = abs(exp(depths.x) - exp(depths.y)) * factor * .0005;
+
+  // Project
+  vec4 viewPos = modelViewMatrix * pos;
+  gl_Position = projectionMatrix * viewPos;
+
+  // fisheye
+  if (gl_Position.z / gl_Position.w > 0.1) {
+    vec2 dxy = gl_Position.xy / gl_Position.w * vec2(aspect, 1.0);
+    gl_Position.xy /= min(2.3, 1.0 + dot(dxy, dxy) * fisheye * .1);
+  }
+
+}
+</script>
+
+<script type="application/x-glsl" id="land-fragment">
+uniform sampler2D texture;
+uniform sampler2D noise;
+uniform vec2 sampleStep;
+uniform float noiseStep;
+uniform float normalStrength;
+
+uniform vec3 color1;
+uniform vec3 color2;
+
+varying vec2 vUV;
+varying vec3 vLightPosition1;
+varying vec3 vLightPosition2;
+varying float vDensity;
+varying float vDetail;
+varying vec2 vCamera;
+
+vec3 noisef(vec2 uv) {
+  return texture2D(noise, uv * 64.0).xyz;
+}
+
+void main() {
+  vec4 sample = texture2D(texture, vUV).xyzw;
+
+  // Decode normal
+  vec3 decode = (sample.yzw - 0.5) * 2.0;
+
+  // Calculate diffuse light
+  vec3 normal = normalize(vec3(decode.x, normalStrength, -decode.y));
+
+  vec3 moon = vec3(0.0, 0.51, 0.857);
+  vec3 aurora1 = vLightPosition1;
+  vec3 aurora2 = vLightPosition2;
+
+  vec3 diffuse = .8 * max(0.0, dot(normal, moon))
+               + .65 * color1 * max(0.0, dot(normal, aurora1)*.9+.1)
+               + .65 * color2 * max(0.0, dot(normal, aurora2)*.9+.1);
+
+  float depth = gl_FragCoord.z / gl_FragCoord.w;
+
+  float ns = 0.35;
+  if (depth < 1.2) {
+    ns = noisef(vUV).x * .7;
+  }
+
+  // Use snow to derive fake occlusion.
+  float snow = decode.z + ns;
+  float occ = .5 - abs(snow - .5);
+  occ = max(.5, 1.0 - occ*occ);
+
+  // Snow vs land
+  vec3 albedo = vec3(.047, .043, .035) * 4.0 + max(0.0, snow);
+  vec3 color = albedo * diffuse * occ;
+
+  // Distance fog (outscattering)
+	color = 0.015 + (color - 0.015) * (exp(-depth * .5) / (1.0 + vDensity * 160.0));
+
+  // Volumetric fog (inscattering)
+  color += vDensity;
+
+  gl_FragColor = vec4(color, 1.0);
+}
+</script>
+
+<!-- offline heightmap generator -->
+<script type="application/x-glsl" id="land-heightmap">
+uniform sampler2D noise;
+uniform vec2 sampleStep;
+uniform float noiseStep;
+varying vec2 vUV;
+
+const int levels = 10;
+const float init = 1.0/16.0;
+const float scale = 0.4;
+const float step = 2.1;
+const float decay = 0.42;
+const float epsilon = 0.1;
+
+const vec2 zero = vec2(0.0, 0.0);
+const float warpFactor = 9.0;//3.0;
+const float warpSum = 10.0;//(warpFactor + 1.0) * 2.0;
+
+// Concentrate vertices in the middle for LOD
+vec2 warp(vec2 uv) {
+  float r = min(1.0, dot(uv,uv));
+  vec2 uv1 = uv * (1.0 + r*warpFactor) / warpSum;
+  return uv + (uv1 - uv) * .9;
+  //  return (uv + uv*abs(uv)*warpFactor) / warpSum;
+}
+
+float height(vec2 uv);
+float height2(vec2 offset);
+float height3(vec2 offset);
+float occlude(vec2 uv);
+vec3 noise2D(vec2 offset);
+
+void main() {
+  vec2 step = sampleStep * epsilon;
+  vec2 dx = vec2(step.x, 0.0);
+  vec2 dy = vec2(0.0, step.y);
+
+  vec2 uv = vUV * 2.0 - 1.0;
+  uv = warp(uv);
+
+  // Height + two adjecent samples
+  float f1 = height(uv);
+  float f2 = height(uv + dx);
+  float f3 = height(uv + dy);
+
+  // Derivatives
+  vec2 dxy = vec2(f2 - f1, f3 - f1) / step;
+
+  // Average snow with and without top-heavy bias
+  float snow1 = clamp( (f1*f1*2.0 + f1 - dot(dxy, dxy) * .2 + .4) * .5 + .5, 0.0, 1.0);
+  float snow2 = clamp( (f1 - dot(dxy, dxy) * .2 + .4) * .5 + .5, 0.0, 1.0);
+  float snow = (snow1 + snow2) / 2.0;
+
+  gl_FragColor = vec4(f1, dxy * .5 + .5, snow);
+}
+
+float height(vec2 offset) {
+
+  vec2 uv = offset * init;
+
+  float f = 0.0;
+  vec2 d = vec2(0.0, 0.0);
+
+  float w = scale;
+  float norm = 0.0;
+
+  for (int i = 0; i < levels; ++i) {
+    vec3 n = noise2D(uv);
+
+    d += n.yz;
+
+    f += n.x * w / (1.0 + dot(d,d));
+
+    w *= decay;
+    uv *= step;
+    uv += 1.618;
+  }
+
+  vec2 offset2 = offset*offset;
+  float dotoffset = dot(offset2, offset2);
+  float ridge = abs(dotoffset - .8);
+
+  f += exp(-ridge*ridge);
+
+  return f;
+}
+
+vec3 noise2D(vec2 offset) {
+  // Let nearest filter do rounding.
+  float p1 = texture2D(noise, offset).x;
+  float p2 = texture2D(noise, offset + vec2(noiseStep, 0.0)).x;
+  float p3 = texture2D(noise, offset + vec2(0.0, noiseStep)).x;
+  float p4 = texture2D(noise, offset + vec2(noiseStep, noiseStep)).x;
+
+  // Calculate deltas
+  float a = p1;
+  float b = p2 - p1;
+  float c = p3 - p1;
+  float d = p1 + p4 - p2 - p3;
+
+  // Calculate fraction
+  vec2 xy = fract(offset / noiseStep);
+  vec2 xyxy = xy * xy;
+
+  // Calculate UV interpolants and derivatives
+  // with quintic smootherstep()
+  vec4 uvdd = ((
+        vec4(6.0 * xy, 30.0 * xy)
+        - vec4(15.0, 15.0, 60.0, 60.0))
+      * vec4(xy, xy)
+      + vec4(10.0, 10.0, 30.0, 30.0))
+    * vec4(xyxy * xy, xyxy);
+
+  float u = uvdd.x;
+  float v = uvdd.y;
+  float du = uvdd.z;
+  float dv = uvdd.w;
+
+  // Interpolate value + derivatives
+  return vec3(
+    a + b*u + c*v + d*u*v,
+    du * (b + d*v),
+    dv * (c + d*u)//,
+  );
+}
+
+</script>

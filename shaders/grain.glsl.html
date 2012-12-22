@@ -1,0 +1,17 @@
+<!-- random noise -->
+<script type="application/x-glsl" id="overlay-grain">
+varying vec2 vUV;
+uniform float seed;
+uniform vec2 scale;
+
+float rand(vec2 co) {
+  return fract(sin(dot(co.xy, vec2(12.9898 + seed, 78.233 - seed)) + seed) * 43758.5453);
+}
+
+void main() {
+  float noise = rand(vUV) * .07;
+
+  gl_FragColor = vec4(noise, noise, noise, 1.0);
+}
+</script>
+

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Never Seen The Sky</title>
+
+  <style type="text/css" media="screen">
+    * {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Palatino, serif;
+      font-size: 16px;
+      line-height: 28px;
+      background: #fff;
+    }
+
+    #front {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+
+      background: rgb(96,96,96); /* Old browsers */
+      background: -moz-radial-gradient(center, ellipse cover,  rgba(96,96,96,1) 0%, rgba(20,20,20,1) 74%, rgba(14,14,14,1) 100%); /* FF3.6+ */
+      background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(96,96,96,1)), color-stop(74%,rgba(20,20,20,1)), color-stop(100%,rgba(14,14,14,1))); /* Chrome,Safari4+ */
+      background: -webkit-radial-gradient(center, ellipse cover,  rgba(96,96,96,1) 0%,rgba(20,20,20,1) 74%,rgba(14,14,14,1) 100%); /* Chrome10+,Safari5.1+ */
+      background: -o-radial-gradient(center, ellipse cover,  rgba(96,96,96,1) 0%,rgba(20,20,20,1) 74%,rgba(14,14,14,1) 100%); /* Opera 12+ */
+      background: -ms-radial-gradient(center, ellipse cover,  rgba(96,96,96,1) 0%,rgba(20,20,20,1) 74%,rgba(14,14,14,1) 100%); /* IE10+ */
+      background: radial-gradient(ellipse at center,  rgba(96,96,96,1) 0%,rgba(20,20,20,1) 74%,rgba(14,14,14,1) 100%); /* W3C */
+      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#606060', endColorstr='#0e0e0e',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+      background: none;
+    }
+
+    #back {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 101;
+    }
+    
+    .box {
+      background: rgba(0, 0, 0, .5);
+      color: #eee;
+      padding: 0 28px;
+      border-radius: 5px;
+    }
+    .box a {
+      color: #ccc;
+    }
+    .box p {
+      margin: 28px 0;
+      color: #999;
+    }
+    .box h1 {
+      margin: 28px 56px;
+      font-size: 32px;
+      line-height: 56px;
+      font-weight: normal;
+      color: #ccc;
+    }
+    #front .box, #back .box {
+      width: 600px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      margin-left: -300px;
+      margin-top: -130px;
+      text-align: center;
+    }
+    
+    .box .spin, .box .wait {
+      color: #999;
+      font-size: 32px;
+      position: relative;
+      top: 0px;
+    }
+
+    #loading p, #crunch p {
+      margin-top: 0;
+      padding: 14px 0;
+    }
+
+    #maximize p, #macchrome p {
+      color: #444;
+      font-weight: bold;
+    }
+    
+    #ready p {
+      margin-top: -14px;
+      margin-bottom: 14px;
+    }
+    
+    #browser, #maximize, #macchrome, #crunch, #ready, #back {
+      display: none;
+    }
+    
+    #holder {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: #000;
+    }
+    
+    label {
+      color: #666;
+    }
+    select {
+      font-size: inherit;
+      font-family: inherit;
+      line-height: inherit;
+      background: black;
+      color: white;
+      border: 0;
+      color: #999;
+    }
+    
+    button {
+      border-radius: 100px;
+      background: #777;
+      color: #fff;
+      border: 0;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, .3),
+                  inset 0 2px 2px rgba(255, 255, 255, .3);
+      cursor: pointer;
+      font-size: 24px;
+      padding: 12px 16px 12px 17px;
+    }
+    button:hover {
+      background: #999;
+    }
+    button:active {
+      color: #bbb;
+      background: #888;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, .3),
+                  inset 0 2px 2px rgba(0, 0, 0, .3);
+    }
+
+  </style>
+
+  <script type="text/javascript" charset="utf-8" src="vendor/domready.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/loader.js"></script>
+
+  <script type="text/javascript" charset="utf-8">
+    DomReady.ready(function() {
+      new Acko.Loader(
+        ['DomReady', 'THREE', 'tQuery', 'ThreeBox', 'ThreeRTT', 'ThreeAudio'],
+        [
+          'vendor/ThreeRTT.glsl.html',
+          'shaders/aurora.glsl.html',
+          'shaders/sky.glsl.html',
+          'shaders/landscape.glsl.html',
+          'shaders/grain.glsl.html',
+          'shaders/earth.glsl.html',
+          'shaders/fade.glsl.html',
+          'shaders/fluid.glsl.html',
+          'shaders/visualizer.glsl.html',
+          'assets/milkyway-panorama-dark.jpg',
+          'assets/earth-night.jpg',
+          'assets/cloud.jpg',
+          'assets/moon.png',
+          'assets/text.png',
+          'assets/cloudburn.mp3',
+        ]);
+    });
+  </script>
+
+</head>
+<body> 
+
+  <section id="front">
+    <div class="box">
+      <h1>Never Seen The Sky</h1>
+
+      <div id="loading">
+        <div class="spin">★</div>
+        <p>Loading...</p>
+      </div>
+
+      <div id="crunch">
+        <div class="wait">√∞</div>
+        <p>Crunching Numbers...</p>
+      </div>
+
+      <div id="ready">
+        <p><button id="start">►</button></p>
+        <div id="debug"></div>
+        <form>
+          <label for="resolution">Resolution</label> <select id="resolution">
+            <option value="540">540p</option>
+            <option value="720">720p</option>
+            <option value="900">900p</option>
+            <option value="1080">1080p</option>
+            <option value="0">Native</option>
+          </select>
+        </form>
+      </div>
+      
+      <div id="maximize">
+        <p>Please maximize your browser window.</p>
+      </div>
+
+      <div id="macchrome">
+        <p>Press ⇧⌘F to go full screen.</p>
+      </div>
+      
+      <div id="browser">
+        <p>Sorry! This demo requires WebGL and Web Audio support. Please use <a href="https://www.google.com/intl/en/chrome/browser/">Google Chrome</a> to view it.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="back">
+    <div class="box">
+      <h1>Never Seen The Sky</h1>
+      <p>A WebGL demo by <a href="http://acko.net/">Steven Wittens</a></p>
+      <p><em>Music: <a href="http://www.feedme.uk.com">Feed Me</a> – Cloudburn</em></p>
+    </div>
+  </section>
+
+  <div id="holder"></div>
+
+ 
+  <script type="text/javascript" charset="utf-8" src="vendor/tquery-bundle.js"></script>
+  <script type="text/javascript" charset="utf-8" src="vendor/ThreeBox.min.js"></script>
+  <script type="text/javascript" charset="utf-8" src="vendor/ThreeRTT-tquery.min.js"></script>
+  <script type="text/javascript" charset="utf-8" src="vendor/ThreeAudio-tquery.min.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/linegeometry.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/demo.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/beat.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/script.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/effect.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/director.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/camera.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/audio.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/noise.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/sky.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/land.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/fluid.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/aurora.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/moon.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/grain.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/earth.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/fade.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/visualizer.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/text.js"></script>
+  <!--<script type="text/javascript" charset="utf-8" src="js/debug.js"></script>-->
+  <!--<script type="text/javascript" charset="utf-8" src="../vendor/console-extras.js/dist/console-extras.js"></script>-->
+
+  <!-- Link back to author -->
+  <a href="https://plus.google.com/112457107445031703644?rel=author"></a>
+  <!--
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-288349-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+  -->
+  
+</body>
+</html>

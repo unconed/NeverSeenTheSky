@@ -1,0 +1,134 @@
+<!-- volumetric render -->
+<script type="application/x-glsl" id="volumetric-vertex">
+varying vec2 vUV;
+varying vec2 vUV2;
+
+uniform vec3 localCamera;
+
+varying vec3 vEye;
+varying vec3 vWorldPosition;
+
+uniform float fisheye;
+uniform float aspect;
+uniform float scale;
+
+attribute vec3 tangent;
+
+void main() {
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+
+  vWorldPosition = vec4(position, 1.0).xzy * 80.0;
+  vWorldPosition.y = -vWorldPosition.y + 10.0;
+  vEye = vWorldPosition.xyz - localCamera.xyz;
+
+  vUV = (vWorldPosition.xz * .25 + .5) * scale;
+  vUV2 = (vWorldPosition.xz)  * scale;
+
+  // Fisheye
+  if (gl_Position.z / gl_Position.w > 0.1) {
+    vec2 dxy = gl_Position.xy / gl_Position.w * vec2(aspect, 1.0);
+    gl_Position.xy /= min(2.3, 1.0 + dot(dxy, dxy) * fisheye * .1);
+  }
+
+}
+</script>
+
+<script type="application/x-glsl" id="volumetric-fragment">
+uniform float bend;
+uniform sampler2D texture;
+uniform sampler2D blur;
+
+uniform vec3 color1;
+uniform vec3 color2;
+
+varying vec2 vUV;
+varying vec2 vUV2;
+varying vec3 vEye;
+varying vec3 vWorldPosition;
+
+const float width = 0.0055;
+const int steps = 6;
+const float isteps = 1.0 / float(steps);
+
+void main() {
+  vec2 uv = vUV;
+  vec2 uv2 = vUV2;
+
+  uv += .5;
+
+  vec3 eye = normalize(vEye);
+  vec2 step = eye.xz / eye.y * width;
+
+  vec2 proj = step * dot(uv2, uv2) * bend;
+  uv -= proj;
+  uv2 -= proj * 4.0;
+
+  float r2 = dot(uv2, uv2);
+  float edge = 1.0 - r2 * .25;
+  edge = edge * abs(edge);
+
+  vec2 accum = texture2D(texture, uv).zw * 1.5;
+  accum.x *= edge;
+  uv += step;
+
+  for (int i = 1; i < steps; ++i) {
+    float shine = max(edge - float(i) * isteps, 0.0);
+
+    vec2 sample = texture2D(blur, uv).zw;
+    uv += step;
+
+    accum.x += shine * sample.x;
+    accum.y += sample.y;
+  }
+
+  vec3 albedo = color1 + (color2 - color1) * accum.y * isteps;
+  albedo.y *= (.5 + accum.x) * .86;
+
+  vec3 color = albedo * sqrt(accum.x) * 1.5;
+
+  gl_FragColor = vec4(color, 1.0);
+}
+</script>
+
+<!-- crisp up aurora field -->
+<script type="application/x-glsl" id="volumetric-crisp">
+uniform sampler2D texture;
+uniform sampler2D noise;
+uniform vec2 sampleStep;
+uniform float time;
+
+varying vec2 vUV;
+
+void main() {
+
+  float noise2 = texture2D(noise, vUV * 8.0 + vec2(-vUV.y, vUV.x)).x;
+  vec4 sample = texture2D(texture, vUV);
+
+  float v = (.9 + sin(noise2 * 6.28 + time) * .3);
+  sample.z *= v;
+  gl_FragColor = sample;
+}
+</script>
+
+<!-- blur field to pre-match final perspective and reduce voxel aliasing -->
+<script type="application/x-glsl" id="volumetric-blur">
+uniform sampler2D texture;
+uniform vec2 sampleStep;
+uniform float radius;
+uniform vec3 center;
+
+varying vec2 vUV;
+
+void main() {
+
+  vec3 c = center;
+  c.xz -= vUV;
+
+  vec2 amount = c.xz / c.y * sampleStep * radius;
+
+  vec4 sample1 = texture2D(texture, vUV - amount);
+  vec4 sample2 = texture2D(texture, vUV + amount);
+
+  gl_FragColor = .5 * (sample1 + sample2);
+}
+</script>

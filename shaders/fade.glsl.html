@@ -1,0 +1,31 @@
+<!-- solid fade -->
+<script type="application/x-glsl" id="overlay-fade-solid">
+uniform float opacity;
+
+void main() {
+
+  float v = opacity;
+  gl_FragColor = vec4(v, v, v, 1.0);
+}
+</script>
+
+<!-- fisheye vignette -->
+<script type="application/x-glsl" id="overlay-fade-fisheye">
+uniform float aspect;
+uniform float opacity;
+uniform float fisheye;
+
+varying vec2 vUV;
+
+void main() {
+  vec2 dxy = vec2(vUV * 2.0 - 1.0) * vec2(aspect, 1.0);
+
+  float v = 1.0 - min(1.0, max(0.0, dot(dxy, dxy) * fisheye * 2.0 - 4.6) + dot(dxy, dxy) * 0.15) * (1.0 - opacity);
+
+  v=v*v;
+
+  gl_FragColor = vec4(v, v, v, 1.0);
+}
+</script>
+
+

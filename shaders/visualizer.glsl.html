@@ -1,0 +1,170 @@
+<!-- visualizer routines -->
+
+<script type="application/x-glsl" id="vis-vertex">
+uniform sampler2D noise;
+uniform float jitter;
+uniform float pointSize;
+
+void main() {
+  gl_PointSize = pointSize;
+  gl_Position = vec4(position.xy, 1.0, 1.0);
+}
+</script>
+
+
+
+
+<script type="application/x-glsl" id="vis-vertex-spawn">
+uniform float jitter;
+uniform float pointSize;
+uniform float seed;
+uniform float vjitter;
+
+uniform int mode;
+
+uniform vec2 center;
+uniform vec2 size;
+
+varying vec2 vJitter;
+
+float rand(vec2 co) {
+  return fract(sin(dot(co.xy, vec2(12.9898 + seed, 78.233 - seed)) + seed) * 43758.5453);
+}
+
+void main() {
+  vJitter = vec2(rand(position.xy), rand(position.xy + 2.0)) * 2.0 - 1.0;
+  vec2 noise = jitter * vJitter;
+  vJitter *= vjitter;
+  gl_PointSize = pointSize;
+
+  vec3 pos;
+
+  if (mode == 1) {
+    float r = position.x*6.08;
+    pos = vec3(cos(r), sin(r), 0.0);
+  }
+  else {
+    pos = position;
+  }
+
+  gl_Position = vec4(pos.xy * size + center + noise, 1.0, 1.0);
+}
+</script>
+
+
+
+
+<script type="application/x-glsl" id="vis-fragment-line">
+uniform float pointSize;
+uniform float density;
+uniform float charm;
+uniform vec2 velocity;
+varying vec2 vJitter;
+
+void main() {
+  gl_FragColor = vec4(velocity.xy + vJitter, density, charm);
+}
+</script>
+
+<script type="application/x-glsl" id="vis-fragment-dot">
+uniform float pointSize;
+uniform float density;
+uniform float charm;
+uniform vec2 velocity;
+varying vec2 vJitter;
+
+void main() {
+  float c = pointSize > 1.0 ? 1.0 - dot(gl_PointCoord - 0.5, gl_PointCoord - 0.5) * 4.0 : 1.0;
+  if (c < 0.0) {
+    discard;
+  }
+  gl_FragColor = c * vec4(velocity.xy + vJitter, density, charm);
+}
+</script>
+
+
+<script type="application/x-glsl" id="vis-fragment-fade">
+uniform float opacity;
+uniform float friction;
+
+void main() {
+  gl_FragColor = vec4(friction, friction, opacity, 1.0);
+}
+</script>
+
+
+
+
+<script type="application/x-glsl" id="vis-fragment-compel">
+uniform sampler2D freqData;
+uniform sampler2D timeData;
+uniform float audioOffset;
+uniform vec2 audioStep;
+
+uniform float strength;
+uniform int mode;
+
+varying vec2 vUV;
+
+void main() {
+
+  vec2 force = vec2(0, 0);
+  vec2 uv = (vUV - .5) * 2.0;
+  vec2 uvp = uv * 3.14;
+  float density = 0.0;
+  float charm = 0.0;
+  float r2 = dot(uv, uv);
+  float r = sqrt(r2);
+
+  // Constant wind
+  if (mode == 0) {
+    force = vec2(1, 0);
+  }
+  else if (mode == 1) {
+    force = vec2(-.3, .7);
+  }
+  // Rotation push
+  else if (mode == 2) {
+    force = normalize(vec2(-uv.y, uv.x)) / (1.0 + r2);
+  }
+
+  // Render spectrum
+  else if (mode == 3) {
+    float a = atan(uv.y, uv.x)/6.28+.5;
+    float freq = texture2D(freqData, vec2(r, a + audioOffset)).a;
+    float time = texture2D(timeData, vec2(a, audioOffset)).a;
+    charm = freq * .05 - .025;
+    freq = freq * freq;
+    density = freq * strength * .5;
+  }
+  // Render scope
+  else if (mode == 4) {
+    float time = texture2D(timeData, vec2(vUV.x, audioOffset)).a;
+    density = max(0.0, 1.0 - abs(uv.y - .5 + time) * 64.0) * strength * abs(time - .5) * 4.0;
+    charm = (time - .5) * .1;
+  }
+  // Mini spirals push
+  else if (mode == 5) {
+    vec2 c = (floor(vUV * 8.0) + .5) / 8.0;
+    force = (vUV - c) * 8.0;
+    force = vec2(-force.y, force.x);
+  }
+
+  // X cross
+  else if (mode == 6) {
+    force = vec2(0.0, sin(uvp.x*4.0));
+  }
+  // Y cross
+  else if (mode == 7) {
+    force = vec2(sin(uvp.y*4.0), 0.0);
+  }
+
+  // Radial spikes
+  else if (mode == 8) {
+    float a = atan(uv.y, uv.x);
+    force = uv * sin(a*8.0);
+  }
+
+  gl_FragColor = vec4(force * strength, density, charm);
+}
+</script>

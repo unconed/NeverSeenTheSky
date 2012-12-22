@@ -1,0 +1,170 @@
+<!-- earth + clouds -->
+<script type="application/x-glsl" id="earth-vertex">
+uniform vec3 center;
+
+varying vec2 vUV;
+varying vec3 vEye;
+
+varying vec3 vNormal;
+
+varying vec3 vWorldPos;
+varying vec3 vRay;
+
+attribute vec3 tangent;
+
+void main() {
+  vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+  gl_Position = projectionMatrix * mvPosition;
+
+  vec3 t = normalMatrix * tangent;
+  vec3 n = normalMatrix * normal;
+
+  vNormal = normal;
+
+  vec3 b = cross(n, t);
+  mat4 tbn = mat4(
+    vec4(t, 0.0),
+    vec4(b, 0.0),
+    vec4(n, 0.0),
+    0.0, 0.0, 0.0, 1.0//,
+  );
+
+  vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
+  vRay = vWorldPos - cameraPosition;
+  vWorldPos = (vWorldPos - center) / 200.0;
+
+  vEye = (-mvPosition * tbn).xyz;
+  vUV = uv;
+}
+</script>
+
+<script type="application/x-glsl" id="earth-fragment">
+uniform vec3 center;
+uniform sampler2D earth;
+uniform sampler2D cloud;
+uniform sampler2D noise;
+varying vec3 vEye;
+varying vec3 vNormal;
+
+varying vec3 vWorldPos;
+varying vec3 vRay;
+
+uniform float earthScroll;
+uniform float cloudScroll;
+
+uniform vec3 sun;
+
+const vec2 sampleStep = vec2(1.0/4096.0, 1.0/2048.0);
+varying vec2 vUV;
+
+const float width = -0.001;
+
+void main() {
+  vec3 eye = normalize(vEye);
+  vec2 step = -eye.xy / eye.z * width;
+
+  vec2 uv = vUV;
+  uv.x += earthScroll;
+
+  // Atmo
+  vec3 centerPos = vWorldPos;
+  float a = dot(vRay, vRay);
+  float b = 2.0*dot(vRay, centerPos);
+  float c = dot(centerPos, centerPos) - 1.05*1.05;
+  float d = b*b - 4.0*a*c;
+  float atmo = 0.0;
+  if (d > 0.0) {
+    float k = (-b - sqrt(d)) / (2.0 * a);
+    float density = length(vRay * k);
+    atmo = density * density * 100.0;
+  }
+
+  // Sample base plane
+  vec3 sample = texture2D(earth, uv).xyz;
+  float land1 = clamp((sample.z - .072) * 15.0, 0.0, 1.0);
+  float land2 = clamp((sample.z - .12) * 15.0, 0.0, 1.0);
+
+  // Gamma correct color
+  sample = sample * sample * .7;
+
+  // Cloud cover at parallax offset
+//  vec2 uvNoise = vUV + step + texture2D(noise, uv*vec2(256.0, 128.0)).xy * .0002;
+  uv.x += cloudScroll - earthScroll;
+//  uvNoise.x += cloudScroll;
+  vec3 cover = texture2D(cloud, uv * vec2(4.0, 2.0) + vec2(earthScroll, 0.0)).xyz;
+
+  // Diffuse lighting
+  float opacity = cover.x;
+  float cosine = dot(normalize(vNormal), sun);
+  float earthDiffuse = max(0.0, cosine);
+  float cloudDiffuse = max(0.0, cosine*.9 + .1)*.99+.01;
+  vec3 earthColor = vec3(.08, .17, .35) + (vec3(.1, .07, .05) - vec3(.08, .17, .35)) * earthDiffuse;
+
+  // Combiner
+  vec3 color = (earthDiffuse * earthColor + sample * max(0.0, 1.0 - atmo * .25)) * max(0.0, 1.0 - opacity * opacity * 2.0)
+             + opacity * cloudDiffuse + vec3(.08, .17, .35) * atmo * max(0.0, cosine*.9+.1);
+
+  gl_FragColor = vec4(sqrt(color), 1.0);
+}
+</script>
+
+
+
+<!-- atmosphere -->
+<script type="application/x-glsl" id="atmo-vertex">
+uniform vec3 center;
+
+varying vec2 vUV;
+varying vec3 vEye;
+
+varying vec3 vNormal;
+
+varying vec3 vWorldPos;
+varying vec3 vRay;
+
+attribute vec3 tangent;
+
+void main() {
+  vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+  gl_Position = projectionMatrix * mvPosition;
+
+  vNormal = normal;
+
+  vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
+  vRay = vWorldPos - cameraPosition;
+  vWorldPos = (vWorldPos - center) / 200.0;
+}
+</script>
+
+<script type="application/x-glsl" id="atmo-fragment">
+uniform vec3 center;
+
+varying vec3 vNormal;
+uniform vec3 sun;
+
+varying vec3 vWorldPos;
+varying vec3 vRay;
+
+void main() {
+
+  // Atmo
+  vec3 centerPos = vWorldPos;
+  float a = dot(vRay, vRay);
+  float b = 2.0*dot(vRay, centerPos);
+  float c = dot(centerPos, centerPos) - 1.05*1.05;
+  float d = b*b - 4.0*a*c;
+  float atmo = 0.0;
+  if (d > 0.0) {
+    float k = (-b - sqrt(d)) / (2.0 * a);
+    float density = length(vRay * k);
+    atmo = density * density * 12.0;
+  }
+
+  // Combiner
+  float cosine = dot(normalize(vNormal), sun);
+  float earthDiffuse = max(0.0, cosine * .7 + .3);
+  vec3 color = earthDiffuse * atmo * vec3(.09, .18, .3);
+
+  gl_FragColor = vec4(color, 1.0);
+}
+</script>
