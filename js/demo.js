@@ -118,10 +118,10 @@ Acko.Demo.prototype = {
       that.world.start();
       setTimeout(function () {
         document.getElementById('back').style.display = 'block';
-      }, (5*60+30)*1000);
+      }, (5*60+26)*1000);
       setTimeout(function () {
         that.world.stop();
-      }, (5*60+30)*1000);
+      }, (5*60+26)*1000);
     }, 300);
   },
 

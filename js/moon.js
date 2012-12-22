@@ -29,7 +29,7 @@ Acko.Moon.prototype = _.extend(new Acko.Effect(), {
     var moon = this.moon = new THREE.Mesh(geometry, material);
     moon.position.set(0.0, 1280.0, -2310.0);
     moon.scale.set(370, 370, 370);
-    moon.rotation.set(0.57, 0, -.3);
+    moon.rotation.set(0.57, 0, -.45);
     moon.renderDepth = 2000.0;
     moon.frustumCulled = false;
 
