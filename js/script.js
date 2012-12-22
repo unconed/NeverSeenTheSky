@@ -224,7 +224,7 @@ Acko.Demo.Script = [
       ["16.3", [
         function () { return .03 },
         function () { return .3 },
-        function () { return .5 },
+        function () { return .4 },
       ]],
       ["17.1", [
         function () { return (1.0 + 2.0*exports.barDecay) * .03 },
@@ -458,7 +458,7 @@ Acko.Demo.Script = [
       ]],
       ["16.3", [
         function () { return .03 },
-        function () { return .6 },
+        function () { return .4 },
         function () { return .1 },
       ]],
       ["17.1", [
@@ -845,7 +845,7 @@ Acko.Demo.Script = [
       ["19.0.0.1", 6],
       ["19.0.0.2", 2],
       ["19.1", 9],
-      ["19.3", 1],
+      ["19.2", 4],
       ["20.0", 11],
       ["20.0.0.1", 2]
       ["22.0", 1],
