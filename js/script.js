@@ -260,13 +260,13 @@ Acko.Demo.Script = [
       ]],
       ///
       ["19.0", [
-        function () { return (1.0 + 2.0*exports.barDecay) * 1 },
-        function () { return (1.0 + 2.0*exports.barDecay) * -.2 },
+        function () { return (1.0 + 2.0*exports.barDecay) * .7 },
+        function () { return (1.0 + 2.0*exports.barDecay) * .2 },
         function () { return (1.0 + 2.0*exports.barDecay) * 0 },
       ]],
       ["19.2", [
-        function () { return (1.0 + 2.0*exports.barDecay) * 1 },
-        function () { return (1.0 + 2.0*exports.barDecay) * -.2 },
+        function () { return (1.0 + 2.0*exports.barDecay) * .7 },
+        function () { return (1.0 + 2.0*exports.barDecay) * .2 },
         function () { return (1.0 + 2.0*exports.barDecay) * 0 },
       ]],
       ///
@@ -276,9 +276,9 @@ Acko.Demo.Script = [
         function () { return (1.0 + 2.0*exports.barDecay) * .5 },
       ]],
       ["20.0", [
-        function () { return (1.0 + 2.0*exports.barDecay) * .2 },
+        function () { return (1.0 + 2.0*exports.barDecay) * .1 },
         function () { return (1.0 + 2.0*exports.barDecay) * .03 },
-        function () { return (1.0 + 2.0*exports.barDecay) * .5 },
+        function () { return (1.0 + 2.0*exports.barDecay) * .55 },
       ]],
 
     ],
@@ -511,9 +511,9 @@ Acko.Demo.Script = [
         function () { return (1.0 + 2.0*exports.barDecay) * .1 },
       ]],
       ["20.0", [
-        function () { return (1.0 + 2.0*exports.barDecay) * .2 },
-        function () { return (1.0 + 2.0*exports.barDecay) * .7 },
         function () { return (1.0 + 2.0*exports.barDecay) * .1 },
+        function () { return (1.0 + 2.0*exports.barDecay) * .7 },
+        function () { return (1.0 + 2.0*exports.barDecay) * .2 },
       ]],
     ],
   ],

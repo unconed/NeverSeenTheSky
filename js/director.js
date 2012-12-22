@@ -144,29 +144,37 @@ Acko.Director.prototype = _.extend(new Acko.Effect(), {
       this.index--;
 
       exports.tick = 1.0;
-      exports.odd = ((this.index + 1) % 8 == 0) ? 1.0 : 0.0;
+      exports.oddoff = ((this.index + 4) % 8 == 0) ? 1.0 : 0.0;
+      exports.odd = (this.index % 8 == 0) ? 1.0 : 0.0;
       exports.beat = (this.index % 4 == 0) ? 1.0 : 0.0;
       exports.bar = (this.index % 16 == 0) ? 1.0 : 0.0;
     }
     else {
-      exports.tick = exports.beat = 0;
+      exports.tick = exports.odd = exports.oddoff = exports.beat = 0;
     }
 
+    var power = function (x) { return x };
+    if (this.last) {
+      var p = Math.min(3, (time - this.last) * 60);
+      power = function (x) { return Math.pow(x, p); }
+    }
+    this.last = time;
+
     // Decay values
-    exports.tickDecay = exports.tickDecay * .8 + .2 * exports.tick;
-    exports.tickDecay2 = exports.tickDecay2 * .8 + .2 * exports.tickDecay;
+    exports.tickDecay = exports.tick + (exports.tickDecay - exports.tick) * power(.8);
+    exports.tickDecay2 = exports.tickDecay + (exports.tickDecay2 - exports.tickDecay) * power(.8);
 
-    exports.oddoffDecay = exports.oddoffDecay * .8 + .2 * exports.oddoff;
-    exports.oddoffDecay2 = exports.oddoffDecay2 * .8 + .2 * exports.oddoffDecay;
+    exports.oddoffDecay = exports.oddoff + (exports.oddoffDecay - exports.oddoff) * power(.8);
+    exports.oddoffDecay2 = exports.oddoffDecay + (exports.oddoffDecay2 - exports.oddoffDecay) * power(.8);
 
-    exports.oddDecay = exports.oddDecay * .8 + .2 * exports.odd;
-    exports.oddDecay2 = exports.oddDecay2 * .8 + .2 * exports.oddDecay;
+    exports.oddDecay = exports.odd + (exports.oddDecay - exports.odd) * power(.8);
+    exports.oddDecay2 = exports.oddDecay + (exports.oddDecay2 - exports.oddDecay) * power(.8);
 
-    exports.beatDecay = exports.beatDecay * .8 + .2 * exports.beat;
-    exports.beatDecay2 = exports.beatDecay2 * .8 + .2 * exports.beatDecay;
+    exports.beatDecay = exports.beat + (exports.beatDecay - exports.beat) * power(.8);
+    exports.beatDecay2 = exports.beatDecay + (exports.beatDecay2 - exports.beatDecay) * power(.8);
 
-    exports.barDecay = exports.barDecay * .8 + .2 * exports.bar;
-    exports.barDecay2 = exports.barDecay2 * .8 + .2 * exports.barDecay;
+    exports.barDecay = exports.bar + (exports.barDecay - exports.bar) * power(.8);
+    exports.barDecay2 = exports.barDecay + (exports.barDecay2 - exports.barDecay) * power(.8);
 
     this.last = time;
 

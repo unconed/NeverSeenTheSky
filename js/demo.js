@@ -117,7 +117,7 @@ Acko.Demo.prototype = {
     setTimeout(function () {
       that.world.start();
       setTimeout(function () {
-        that.show('#back');
+        document.getElementById('back').style.display = 'block';
       }, (5*60+30)*1000);
       setTimeout(function () {
         that.world.stop();
