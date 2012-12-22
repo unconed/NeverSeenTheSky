@@ -260,14 +260,14 @@ Acko.Demo.Script = [
       ]],
       ///
       ["19.0", [
-        function () { return (1.0 + 2.0*exports.barDecay) * .7 },
+        function () { return (1.0 + 2.0*exports.barDecay) * .4 },
         function () { return (1.0 + 2.0*exports.barDecay) * .2 },
-        function () { return (1.0 + 2.0*exports.barDecay) * 0 },
+        function () { return (1.0 + 2.0*exports.barDecay) * .1 },
       ]],
       ["19.2", [
-        function () { return (1.0 + 2.0*exports.barDecay) * .7 },
+        function () { return (1.0 + 2.0*exports.barDecay) * .4 },
         function () { return (1.0 + 2.0*exports.barDecay) * .2 },
-        function () { return (1.0 + 2.0*exports.barDecay) * 0 },
+        function () { return (1.0 + 2.0*exports.barDecay) * .1 },
       ]],
       ///
       ["19.2", [
@@ -497,12 +497,12 @@ Acko.Demo.Script = [
       ["19.0", [
         function () { return (1.0 + 2.0*exports.barDecay) * .1 },
         function () { return (1.0 + 2.0*exports.barDecay) * .05 },
-        function () { return (1.0 + 2.0*exports.barDecay) * .5 },
+        function () { return (1.0 + 2.0*exports.barDecay) * .4 },
       ]],
       ["19.2", [
         function () { return (1.0 + 2.0*exports.barDecay) * .1 },
         function () { return (1.0 + 2.0*exports.barDecay) * .05 },
-        function () { return (1.0 + 2.0*exports.barDecay) * .5 },
+        function () { return (1.0 + 2.0*exports.barDecay) * .4 },
       ]],
       ///
       ["19.2", [
@@ -844,8 +844,8 @@ Acko.Demo.Script = [
       ["19.0.0.0", 9],
       ["19.0.0.1", 6],
       ["19.0.0.2", 2],
-      ["19.2", 8],
-      ["19.3", 7],
+      ["19.1", 9],
+      ["19.3", 1],
       ["20.0", 11],
       ["20.0.0.1", 2]
       ["22.0", 1],
