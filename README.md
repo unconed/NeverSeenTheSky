@@ -28,7 +28,7 @@ A snow value is derived based on slope and some fudged formulas and a normal map
 fake ambient occlusion is applied (just made up), small-scale noise is added to hide the low res areas,
 and volumetric fog is added in the valleys.
 
-Though the map 2048x2048, the detail is still pretty low in practice, especially because the mesh is only 256x256,
+Though the map is 2048x2048, the detail is still pretty low in practice, especially because the mesh is only 256x256,
 so the map is pre-warped to concentrate pixel and vertex density in the middle.
 
 Aurora - Fluid simulation
