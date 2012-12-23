@@ -33,10 +33,10 @@ The advected quantities are velocity (x,y), aurora density, and 'charm', which i
 Aurora - Volumetric rendering
 ---
 
-The 2D fluid density and charm is turned into a 2.5D effect by raytracing through a volume. But first, the 256x256 field
-is upscaled to 512x512 and shimmering noise is added to make it more aurora-like. To look good, this would require about
+The 2D fluid density and charm is turned into a 2.5D effect by raytracing through a box volume. But first, the 256x256 field
+is upscaled to 512x512 and shimmering noise is added to make it more aurora-like. At this resolution, to look good, this would require about
 32 raytracing steps per pixel, which is too much. So instead, the field is first radially blurred relative to where the
-camera (above or below). This smears out the individual stacked layers exactly in the direction perspective would, and
+camera is (right above or below). This smears out the individual stacked layers exactly in the direction perspective would, and
 gives a smooth result with only 6 raytracing steps.
 
 The aurora has two primary colors at any given time, and the 'charm' value is used to interpolate between them (0..1)
