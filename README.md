@@ -17,8 +17,15 @@ exports.aurora.color2 = [.4, .4, .4];
 exports.fade.opacity = .5;
 exports.visualizer.preset = 4;
 
+// Reset the script from the start (or set a new script!)
+exports.director.live(Acko.Demo.Script)
+
 // Even internal Three.js stuff is exposed if you dig around
+// Tron mode:
 exports.land.land.material.wireframe = true;
+exports.moon.moon.material.wireframe = true;
+exports.aurora.aurora.material.wireframe = true;
+exports.earth.earth.material.wireframe = true;
 ```
 
 
