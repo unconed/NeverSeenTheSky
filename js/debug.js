@@ -11,7 +11,7 @@ Acko.Debug.prototype = _.extend(new Acko.Effect(), {
     compose.mesh.material.transparent = true;
     compose.mesh.material.depthTest = false;
     compose.mesh.material.depthWrite = false;
-    compose.mesh.renderDepth = 1e8;
+    compose.mesh.renderDepth = -1e8;
   },
 
   update: function (world, time) {

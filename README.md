@@ -6,6 +6,16 @@ http://christmasexperiments.com/23/
 
 Expect a more decent write up about this demo on acko.net soon. In the meantime, here's the Cliff's notes:
 
+Open the included `debug.html` to examine the demo from the inside. Click and drag to look around. Type `freeze()` in the JS console to stop the script and move around freely with the WASD keys.
+
+You can also alter the effects by changing the global exports object, e.g.:
+
+exports.aurora.color1 = [.5, .3, .1];
+exports.aurora.color2 = [.4, .4, .4];
+exports.fade.opacity = .5;
+exports.visualizer.preset = 4;
+
+
 Landscape
 ---
 

@@ -68,12 +68,14 @@ Acko.Demo.prototype = {
   build: function (assets, callback) {
     var that = this;
 
+    var debug = this.debug = location.href.match(/debug/);
+
     var options = {
-      cameraControls: false,
-//      controlClass: THREE.FirstPersonControls,
+      cameraControls: debug,
+      controlClass: debug ? THREE.FirstPersonControls : null,
       orbit: 3,
       theta: 0,
-      stats: false,
+      stats: debug,
     };
 
     Acko.EffectList.sort(function (a, b) {
@@ -117,10 +119,10 @@ Acko.Demo.prototype = {
     setTimeout(function () {
       that.world.start();
       setTimeout(function () {
-        document.getElementById('back').style.display = 'block';
-      }, (5*60+26)*1000);
-      setTimeout(function () {
-        that.world.stop();
+        if (!that.debug) {
+          document.getElementById('back').style.display = 'block';
+          that.world.stop();
+        }
       }, (5*60+26)*1000);
     }, 300);
   },
