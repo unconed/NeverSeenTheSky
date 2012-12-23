@@ -12,7 +12,7 @@ Landscape
 A heightmap is generated on the GPU by stacking layers of smoothly interpolated noise, similar to this:
 http://www.iquilezles.org/www/articles/morenoise/morenoise.htm
 
-A snow value is derived based on slope and some fudged formulas. When rendering the landscape,
+A snow value is derived based on slope and some fudged formulas and a normal map is generated for per-pixel lighting. When rendering the landscape,
 fake ambient occlusion is applied (just made up), small-scale noise is added to hide the low res areas,
 and volumetric fog is added in the valleys.
 
