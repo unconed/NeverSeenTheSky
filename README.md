@@ -11,10 +11,14 @@ Open the included `debug.html` to examine the demo from the inside. Click and dr
 You can also alter the effects by changing the global exports object, e.g.:
 
 ```javascript
+// Basic demo controls
 exports.aurora.color1 = [.5, .3, .1];
 exports.aurora.color2 = [.4, .4, .4];
 exports.fade.opacity = .5;
 exports.visualizer.preset = 4;
+
+// Even internal Three.js stuff is exposed if you dig around
+exports.land.land.material.wireframe = true;
 ```
 
 
