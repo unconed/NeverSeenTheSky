@@ -10,10 +10,23 @@ Open the included `debug.html` to examine the demo from the inside. Click and dr
 
 You can also alter the effects by changing the global exports object, e.g.:
 
+```javascript
+// Basic demo controls
 exports.aurora.color1 = [.5, .3, .1];
 exports.aurora.color2 = [.4, .4, .4];
 exports.fade.opacity = .5;
 exports.visualizer.preset = 4;
+
+// Reset the script from the start (or set a new script!)
+exports.director.live(Acko.Demo.Script)
+
+// Even internal Three.js stuff is exposed if you dig around
+// Tron mode:
+exports.land.land.material.wireframe = true;
+exports.moon.moon.material.wireframe = true;
+exports.aurora.aurora.material.wireframe = true;
+exports.earth.earth.material.wireframe = true;
+```
 
 
 Landscape
@@ -26,7 +39,7 @@ A snow value is derived based on slope and some fudged formulas and a normal map
 fake ambient occlusion is applied (just made up), small-scale noise is added to hide the low res areas,
 and volumetric fog is added in the valleys.
 
-Though the map 2048x2048, the detail is still pretty low in practice, especially because the mesh is only 256x256,
+Though the map is 2048x2048, the detail is still pretty low in practice, especially because the mesh is only 256x256,
 so the map is pre-warped to concentrate pixel and vertex density in the middle.
 
 Aurora - Fluid simulation
