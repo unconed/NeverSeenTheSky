@@ -64,8 +64,8 @@ void main() {
   uv2 -= proj * 4.0;
 
   float r2 = dot(uv2, uv2);
-  float edge = 1.0 - r2 * .25;
-  edge = edge * abs(edge);
+  float edge = max(0.0, 1.0 - r2 * .25);
+  edge = edge * edge;
 
   vec2 accum = texture2D(texture, uv).zw * 1.5;
   accum.x *= edge;
