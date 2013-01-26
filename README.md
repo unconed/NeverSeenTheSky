@@ -6,7 +6,10 @@ http://christmasexperiments.com/23/
 
 Expect a more decent write up about this demo on acko.net soon. In the meantime, here's the Cliff's notes:
 
-Open the included `debug.html` to examine the demo from the inside. Click and drag to look around. Type `freeze()` in the JS console to stop the script and move around freely with the WASD keys.
+Use the included `debug.html` to examine the demo from the inside:
+[http://acko.net/files/never-seen-the-sky/git/debug.html](http://acko.net/files/never-seen-the-sky/git/debug.html)
+
+Click and drag to look around. Type `freeze()` in the JS console to stop the script and move around freely with the WASD keys.
 
 You can also alter the effects by changing the global exports object, e.g.:
 
