@@ -16817,6 +16817,8 @@ THREE.WebGLRenderer = function ( parameters ) {
 	var _gl;
 
 	var _glExtensionTextureFloat;
+	var _glExtensionFloatLinear;
+	var _glExtensionHalfFloatLinear;
 	var _glExtensionStandardDerivatives;
 	var _glExtensionTextureFilterAnisotropic;
 	var _glExtensionCompressedTextureS3TC;
@@ -23459,6 +23461,8 @@ THREE.WebGLRenderer = function ( parameters ) {
 		}
 
 		_glExtensionTextureFloat = _gl.getExtension( 'OES_texture_float' );
+		_glExtensionFloatLinear = _gl.getExtension( 'OES_texture_float_linear' );
+		_glExtensionHalfFloatLinear = _gl.getExtension( 'OES_texture_half_float_linear' );
 		_glExtensionStandardDerivatives = _gl.getExtension( 'OES_standard_derivatives' );
 
 		_glExtensionTextureFilterAnisotropic = _gl.getExtension( 'EXT_texture_filter_anisotropic' ) ||
@@ -37102,7 +37106,8 @@ tQuery.Loop.prototype.destroy	= function()
 tQuery.Loop.prototype.start	= function()
 {
 	if( this._timerId )	this.stop();
-	this._timerId	= requestAnimationFrame( this._onAnimationFrame.bind(this) );
+	this._timerId	= requestAnimationFrame(this._onAnimationFrame.bind(this) );
+//	this._timerId	= setInterval(this._onAnimationFrame.bind(this), 200);
 	// for chained API
 	return this;
 }
@@ -37120,6 +37125,7 @@ tQuery.Loop.prototype.stop	= function()
 	return this;
 }
 
+var skip = 0;
 tQuery.Loop.prototype._onAnimationFrame	= function()
 {
 	// loop on request animation loop
